@@ -130,9 +130,69 @@
 <!-- Game sederhana -->
 <div class="card">
   <h2>Game Edukasi</h2>
-  <p>Seret dan cocokkan bentuk ke kotaknya (demo sederhana).</p>
-  <button onclick="alert('Game dimulai! (demo)')">Mulai Game</button>
+  <p>Seret bentuk ke kotak yang sesuai.</p>
+  <div style="display:flex; gap:20px; flex-wrap:wrap; justify-content:center;">
+
+    <!-- Bentuk -->
+    <div>
+      <div draggable="true" ondragstart="drag(event)" id="circle" 
+           style="width:60px;height:60px;border-radius:50%;background:red;margin:10px auto;cursor:grab;"></div>
+      <p style="text-align:center;">Lingkaran</p>
+    </div>
+    <div>
+      <div draggable="true" ondragstart="drag(event)" id="square" 
+           style="width:60px;height:60px;background:blue;margin:10px auto;cursor:grab;"></div>
+      <p style="text-align:center;">Persegi</p>
+    </div>
+    <div>
+      <div draggable="true" ondragstart="drag(event)" id="triangle" 
+           style="width:0;height:0;border-left:30px solid transparent;
+                  border-right:30px solid transparent;
+                  border-bottom:60px solid green;
+                  margin:10px auto;cursor:grab;"></div>
+      <p style="text-align:center;">Segitiga</p>
+    </div>
+  </div>
+
+  <h3 style="text-align:center;">Kotak Tujuan</h3>
+  <div style="display:flex; gap:20px; flex-wrap:wrap; justify-content:center;">
+    <div ondrop="drop(event)" ondragover="allowDrop(event)" data-shape="circle"
+         style="width:80px;height:80px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;">
+      Lingkaran
+    </div>
+    <div ondrop="drop(event)" ondragover="allowDrop(event)" data-shape="square"
+         style="width:80px;height:80px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;">
+      Persegi
+    </div>
+    <div ondrop="drop(event)" ondragover="allowDrop(event)" data-shape="triangle"
+         style="width:80px;height:80px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;">
+      Segitiga
+    </div>
+  </div>
+  <p id="gameMessage" style="text-align:center;font-weight:bold;color:#1a3;margin-top:10px;"></p>
 </div>
+
+<script>
+  function allowDrop(ev) {
+    ev.preventDefault();
+  }
+  function drag(ev) {
+    ev.dataTransfer.setData("shape", ev.target.id);
+  }
+  function drop(ev) {
+    ev.preventDefault();
+    let draggedShape = ev.dataTransfer.getData("shape");
+    let targetShape = ev.target.getAttribute("data-shape");
+
+    if(draggedShape === targetShape){
+      document.getElementById("gameMessage").textContent = "✅ Benar! " + targetShape + " cocok.";
+      document.getElementById("gameMessage").style.color = "green";
+    }else{
+      document.getElementById("gameMessage").textContent = "❌ Coba lagi, itu bukan " + targetShape + ".";
+      document.getElementById("gameMessage").style.color = "red";
+    }
+  }
+                            </script>
 
 <!-- Aksesibilitas -->
 <div class="card">
