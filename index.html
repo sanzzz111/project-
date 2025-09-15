@@ -119,6 +119,58 @@
   </div>
 </div>
 
+    <div class="game">
+  <h2>Game Tebak Gambar</h2>
+  <p>Tebak nama dari gambar yang muncul!</p>
+  <div id="gambar-tebak" style="margin:20px;">
+    <img id="gambar" src="" alt="Gambar tebakan" width="120">
+  </div>
+
+  <input type="text" id="jawaban" placeholder="Ketik jawaban di sini">
+  <button onclick="cekJawaban()">Cek Jawaban</button>
+  <p id="hasil"></p>
+</div>
+
+<script>
+  // daftar semua gambar + jawabannya
+  const gambarList = [
+    {src: "https://i.ibb.co/3dLkW7Q/apel.png", nama: "apel"},
+    {src: "https://i.ibb.co/yp7ByL0/mangga.png", nama: "mangga"},
+    {src: "https://i.ibb.co/3p3vFbY/semangka.png", nama: "semangka"},
+    {src: "https://i.ibb.co/tmhJfsS/terong.png", nama: "terong"},
+    {src: "https://i.ibb.co/JrXw6Vr/bayam.png", nama: "bayam"},
+    {src: "https://i.ibb.co/Df8NsN5/buncis.png", nama: "buncis"},
+    {src: "https://i.ibb.co/zNHPs2R/gajah.png", nama: "gajah"},
+    {src: "https://i.ibb.co/J53tY8d/kelinci.png", nama: "kelinci"},
+    {src: "https://i.ibb.co/8mgNw9m/badak.png", nama: "badak"}
+  ];
+
+  let currentIndex = 0;
+
+  function tampilkanGambar() {
+    const gambar = gambarList[currentIndex];
+    document.getElementById("gambar").src = gambar.src;
+    document.getElementById("hasil").innerText = "";
+    document.getElementById("jawaban").value = "";
+  }
+
+  function cekJawaban() {
+    const input = document.getElementById("jawaban").value.toLowerCase().trim();
+    const jawabanBenar = gambarList[currentIndex].nama;
+
+    if (input === jawabanBenar) {
+      document.getElementById("hasil").innerText = "✅ Benar!";
+      currentIndex = (currentIndex + 1) % gambarList.length;
+      setTimeout(tampilkanGambar, 1000);
+    } else {
+      document.getElementById("hasil").innerText = "❌ Salah, coba lagi!";
+    }
+  }
+
+  // tampilkan pertama kali
+  tampilkanGambar();
+</script>
+
 <!-- Visual Schedule -->
 <div class="card">
   <h2>Rutin Harian (Visual schedule)</h2>
