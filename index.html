@@ -1,0 +1,181 @@
+<!DOCTYPE html><html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teknologi untuk Down Syndrome</title>
+  <style>
+    body{
+      margin:0;
+      font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      background: url("https://files.catbox.moe/tonq7z.jpeg") no-repeat center center fixed;
+      background-size: cover;
+      color:#123;
+      padding:18px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
+    }
+    .container{
+      max-width:800px;
+      background:#ffffffcc;
+      border-radius:12px;
+      padding:20px;
+      box-shadow:0 4px 12px rgba(0,0,0,.2);
+    }
+    h1{
+      text-align:center;
+      color:#1a3;
+    }
+    .card{
+      background:#f0f8ff;
+      border-radius:10px;
+      padding:15px;
+      margin:10px 0;
+      box-shadow:0 2px 6px rgba(0,0,0,.15);
+    }
+    button{
+      background:#3498db;
+      color:white;
+      border:none;
+      padding:10px 15px;
+      border-radius:8px;
+      cursor:pointer;
+      font-size:16px;
+    }
+    button:hover{
+      background:#217dbb;
+    }
+    .picture-board{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+      text-align:center;
+    }
+    .picture-board img{
+      width:50px;
+      height:50px;
+      display:block;
+      margin:0 auto 5px;
+    }
+    .schedule-item{
+      background:#e8f5e9;
+      padding:8px;
+      margin:5px 0;
+      border-radius:6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Aplikasi Bantu Down Syndrome</h1><!-- Text-to-Speech -->
+<div class="card">
+  <h2>Text to Speech</h2>
+  <textarea id="ttsInput" rows="3" style="width:100%" placeholder="Tulis teks di sini..."></textarea><br><br>
+  <button onclick="speakText()">Bacakan</button>
+  <label>Kecepatan: <input type="range" id="rate" min="0.5" max="2" step="0.1" value="1"></label>
+</div>
+
+<!-- Picture Board dengan gambar URL -->
+<div class="card">
+  <h2>Picture Board (komunikasi cepat)</h2>
+  <p>Ketuk gambar untuk mendengar kata & berbagi.</p>
+  <div class="picture-board">
+    <div class="card" onclick="speak('Apel')">
+      <img src="https://files.catbox.moe/ikrtvx.jpg" alt="Apel">
+      Apel
+    </div>
+    <div class="card" onclick="speak('Mangga')">
+      <img src="https://files.catbox.moe/v12ijh.jpg" alt="Mangga">
+      Mangga
+    </div>
+    <div class="card" onclick="speak('Semangka')">
+      <img src="https://files.catbox.moe/fpnj1k.jpg" alt="Semangka">
+      Semangka
+    </div>
+    <div class="card" onclick="speak('Terong')">
+      <img src="https://files.catbox.moe/p97alk.jpg" alt="Terong">
+      Terong
+    </div>
+    <div class="card" onclick="speak('Bayam')">
+      <img src="https://files.catbox.moe/2kqopv.jpg" alt="Bayam">
+      Bayam
+    </div>
+    <div class="card" onclick="speak('Buncis')">
+      <img src="https://files.catbox.moe/a7adh6.jpg" alt="Buncis">
+      Buncis
+    </div>
+   <div class="card" onclick="speak('Gajah')">
+      <img src="https://files.catbox.moe/70ouck.jpg" alt="Gajah">
+      Gajah
+    </div>
+   <div class="card" onclick="speak('Kelinci')">
+      <img src="https://files.catbox.moe/9uopjx.jpg" alt="Kelinci">
+      Kelinci
+    </div>
+    <div class="card" onclick="speak('Badak')">
+      <img src="https://files.catbox.moe/51frdy.jpg" alt="Badak">
+      Badak
+    </div>
+  </div>
+</div>
+
+<!-- Visual Schedule -->
+<div class="card">
+  <h2>Rutin Harian (Visual schedule)</h2>
+  <input id="scheduleInput" placeholder="Contoh: Sikat gigi">
+  <button onclick="addSchedule()">Tambah</button>
+  <div id="scheduleList"></div>
+</div>
+
+<!-- Game sederhana -->
+<div class="card">
+  <h2>Game Edukasi</h2>
+  <p>Seret dan cocokkan bentuk ke kotaknya (demo sederhana).</p>
+  <button onclick="alert('Game dimulai! (demo)')">Mulai Game</button>
+</div>
+
+<!-- Aksesibilitas -->
+<div class="card">
+  <h2>Pengaturan Akses</h2>
+  <button onclick="document.body.style.fontSize='larger'">Perbesar Teks</button>
+  <button onclick="document.body.style.backgroundColor='black';document.body.style.color='white'">Mode Kontras Tinggi</button>
+</div>
+
+<p><i>Tips: Gunakan suara nyata (rekam) bila memungkinkan untuk kenyamanan. Tambahkan gambar nyata, audio berkualitas, dan dukungan caregiver.</i></p>
+
+  </div>  <script>
+    function speakText(){
+      const text=document.getElementById('ttsInput').value;
+      speak(text);
+    }
+    function speak(msg){
+      const utter=new SpeechSynthesisUtterance(msg);
+      utter.rate=parseFloat(document.getElementById('rate').value);
+      speechSynthesis.speak(utter);
+    }
+    // Schedule
+    function addSchedule(){
+      const input=document.getElementById('scheduleInput');
+      const text=input.value.trim();
+      if(text){
+        let item=document.createElement('div');
+        item.className='schedule-item';
+        item.textContent=text;
+        document.getElementById('scheduleList').appendChild(item);
+        let arr=JSON.parse(localStorage.getItem('schedule')||'[]');
+        arr.push(text);
+        localStorage.setItem('schedule',JSON.stringify(arr));
+        input.value='';
+      }
+    }
+    window.onload=function(){
+      let arr=JSON.parse(localStorage.getItem('schedule')||'[]');
+      arr.forEach(t=>{
+        let item=document.createElement('div');
+        item.className='schedule-item';
+        item.textContent=t;
+        document.getElementById('scheduleList').appendChild(item);
+      });
+    }
+  </script></body>
+</html>
