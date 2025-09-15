@@ -1,0 +1,416 @@
+<!DOCTYPE html><html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teknologi untuk Down Syndrome</title>
+  <style>
+    body{
+      margin:0;
+      font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      background: url("https://files.catbox.moe/tonq7z.jpeg") no-repeat center center fixed;
+      background-size: cover;
+      color:#123;
+      padding:18px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
+    }
+    .container{
+      max-width:800px;
+      background:#ffffffcc;
+      border-radius:12px;
+      padding:20px;
+      box-shadow:0 4px 12px rgba(0,0,0,.2);
+    }
+    h1{
+      text-align:center;
+      color:#1a3;
+    }
+    .card{
+      background:#f0f8ff;
+      border-radius:10px;
+      padding:15px;
+      margin:10px 0;
+      box-shadow:0 2px 6px rgba(0,0,0,.15);
+    }
+    button{
+      background:#3498db;
+      color:white;
+      border:none;
+      padding:10px 15px;
+      border-radius:8px;
+      cursor:pointer;
+      font-size:16px;
+    }
+    button:hover{
+      background:#217dbb;
+    }
+    .picture-board{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+      text-align:center;
+    }
+    .picture-board img{
+      width:50px;
+      height:50px;
+      display:block;
+      margin:0 auto 5px;
+    }
+    .schedule-item{
+      background:#e8f5e9;
+      padding:8px;
+      margin:5px 0;
+      border-radius:6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Aplikasi Bantu Down Syndrome</h1><!-- Text-to-Speech -->
+<div class="card">
+  <h2>Text to Speech</h2>
+  <textarea id="ttsInput" rows="3" style="width:100%" placeholder="Tulis teks di sini..."></textarea><br><br>
+  <button onclick="speakText()">Bacakan</button>
+  <label>Kecepatan: <input type="range" id="rate" min="0.5" max="2" step="0.1" value="1"></label>
+</div>
+
+<!-- Picture Board dengan gambar URL -->
+<div class="card">
+  <h2>Picture Board (komunikasi cepat)</h2>
+  <p>Ketuk gambar untuk mendengar kata & berbagi.</p>
+  <div class="picture-board">
+    <div class="card" onclick="speak('Apel')">
+      <img src="https://files.catbox.moe/ikrtvx.jpg" alt="Apel">
+      Apel
+    </div>
+    <div class="card" onclick="speak('Mangga')">
+      <img src="https://files.catbox.moe/v12ijh.jpg" alt="Mangga">
+      Mangga
+    </div>
+    <div class="card" onclick="speak('Semangka')">
+      <img src="https://files.catbox.moe/fpnj1k.jpg" alt="Semangka">
+      Semangka
+    </div>
+    <div class="card" onclick="speak('Terong')">
+      <img src="https://files.catbox.moe/p97alk.jpg" alt="Terong">
+      Terong
+    </div>
+    <div class="card" onclick="speak('Bayam')">
+      <img src="https://files.catbox.moe/2kqopv.jpg" alt="Bayam">
+      Bayam
+    </div>
+    <div class="card" onclick="speak('Buncis')">
+      <img src="https://files.catbox.moe/a7adh6.jpg" alt="Buncis">
+      Buncis
+    </div>
+   <div class="card" onclick="speak('Gajah')">
+      <img src="https://files.catbox.moe/70ouck.jpg" alt="Gajah">
+      Gajah
+    </div>
+   <div class="card" onclick="speak('Kelinci')">
+      <img src="https://files.catbox.moe/9uopjx.jpg" alt="Kelinci">
+      Kelinci
+    </div>
+    <div class="card" onclick="speak('Badak')">
+      <img src="https://files.catbox.moe/51frdy.jpg" alt="Badak">
+      Badak
+    </div>
+  </div>
+</div>
+
+<div class="game">
+  <h2>Game Tebak Gambar</h2>
+  <p>Tebak nama dari gambar yang muncul!</p>
+  <div id="gambar-tebak" style="margin:20px;">
+    <img id="gambar" src="" alt="Gambar tebakan" width="120">
+  </div>
+
+  <input type="text" id="jawaban" placeholder="Ketik jawaban di sini">
+  <button onclick="cekJawaban()">Cek Jawaban</button>
+  <p id="hasil"></p>
+</div>
+
+<script>
+  // daftar semua gambar + jawabannya
+  const gambarList = [
+    {src: "https://files.catbox.moe/ikrtvx.jpg", nama: "apel"},
+    {src: "https://files.catbox.moe/v12ijh.jpg", nama: "mangga"},
+    {src: "https://files.catbox.moe/fpnj1k.jpg", nama: "semangka"},
+    {src: "https://files.catbox.moe/p97alk.jpg", nama: "terong"},
+    {src: "https://files.catbox.moe/2kqopv.jpg", nama: "bayam"},
+    {src: "https://files.catbox.moe/a7adh6.jpg", nama: "buncis"},
+    {src: "https://files.catbox.moe/70ouck.jpg", nama: "gajah"},
+    {src: "https://files.catbox.moe/9uopjx.jpg", nama: "kelinci"},
+    {src: "https://files.catbox.moe/51frdy.jpg", nama: "badak"}
+  ];
+
+  let currentIndex = 0;
+
+  function tampilkanGambar() {
+    const gambar = gambarList[currentIndex];
+    document.getElementById("gambar").src = gambar.src;
+    document.getElementById("hasil").innerText = "";
+    document.getElementById("jawaban").value = "";
+  }
+
+  function cekJawaban() {
+    const input = document.getElementById("jawaban").value.toLowerCase().trim();
+    const jawabanBenar = gambarList[currentIndex].nama;
+
+    if (input === jawabanBenar) {
+      document.getElementById("hasil").innerText = "✅ Benar!";
+      currentIndex = (currentIndex + 1) % gambarList.length;
+      setTimeout(tampilkanGambar, 1000);
+    } else {
+      document.getElementById("hasil").innerText = "❌ Salah, coba lagi!";
+    }
+  }
+
+  // tampilkan pertama kali
+  tampilkanGambar();
+</script>
+
+<!-- Game Edukasi (perbaikan: desktop drag&drop + mobile tap-to-place) -->
+<div class="card" id="game-edu">
+  <h2>Game Edukasi</h2>
+  <p>Seret bentuk ke kotak yang sesuai — atau ketuk bentuk lalu ketuk kotak (mode mobile).</p>
+
+  <div style="display:flex; gap:40px; justify-content:center; align-items:center; margin:20px 0;">
+    <!-- bentuk: beri class "shape" & atribut data-shape -->
+    <div id="circle" class="shape" data-shape="circle" draggable="true"
+         ondragstart="drag(event)" onmousedown="dragStart(event)" ontouchstart="touchStart(event)"
+         style="text-align:center; cursor:grab;">
+      <div style="width:60px;height:60px;border-radius:50%;background:red;margin:0 auto 6px;"></div>
+      <div>Lingkaran</div>
+    </div>
+
+    <div id="square" class="shape" data-shape="square" draggable="true"
+         ondragstart="drag(event)" onmousedown="dragStart(event)" ontouchstart="touchStart(event)"
+         style="text-align:center; cursor:grab;">
+      <div style="width:60px;height:60px;background:blue;margin:0 auto 6px;"></div>
+      <div>Persegi</div>
+    </div>
+
+    <div id="triangle" class="shape" data-shape="triangle" draggable="true"
+         ondragstart="drag(event)" onmousedown="dragStart(event)" ontouchstart="touchStart(event)"
+         style="text-align:center; cursor:grab;">
+      <div style="width:0;height:0;border-left:30px solid transparent;border-right:30px solid transparent;border-bottom:60px solid green;margin:0 auto 6px;"></div>
+      <div>Segitiga</div>
+    </div>
+  </div>
+
+  <h3 style="text-align:center;">Kotak Tujuan</h3>
+  <div style="display:flex; gap:20px; justify-content:center; margin-top:8px;">
+    <div class="dropzone" data-shape="circle" ondragover="allowDrop(event)" ondrop="drop(event)"
+         onclick="dropByClick(event)" ontouchend="dropByClick(event)"
+         style="width:110px;height:110px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+      Lingkaran
+    </div>
+    <div class="dropzone" data-shape="square" ondragover="allowDrop(event)" ondrop="drop(event)"
+         onclick="dropByClick(event)" ontouchend="dropByClick(event)"
+         style="width:110px;height:110px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+      Persegi
+    </div>
+    <div class="dropzone" data-shape="triangle" ondragover="allowDrop(event)" ondrop="drop(event)"
+         onclick="dropByClick(event)" ontouchend="dropByClick(event)"
+         style="width:110px;height:110px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+      Segitiga
+    </div>
+  </div>
+
+  <p id="gameMessage" style="text-align:center;font-weight:bold;color:#1a3;margin-top:12px;"></p>
+  <div style="text-align:center;margin-top:8px;">
+    <button onclick="resetGame()">Reset Game</button>
+  </div>
+</div>
+
+<script>
+  // fallback & state
+  let lastSelectedShapeId = null; // dipakai untuk mobile / klik-taruh
+
+  function allowDrop(ev) {
+    ev.preventDefault();
+  }
+
+  // dragstart untuk desktop
+  function drag(ev) {
+    try {
+      ev.dataTransfer.setData("text/plain", ev.target.id);
+    } catch(e){}
+    // simpan juga ke fallback
+    const el = ev.target.closest('.shape');
+    if(el) lastSelectedShapeId = el.id;
+  }
+
+  // beberapa browser memberi target berbeda saat mulai drag; normalisasi
+  function dragStart(ev){
+    const el = ev.target.closest('.shape');
+    if(el) lastSelectedShapeId = el.id;
+  }
+
+  // touchstart / klik bentuk: pilih bentuk untuk mobile
+  function touchStart(ev){
+    ev.preventDefault(); // mencegah gesture default di mobile
+    const el = ev.target.closest('.shape');
+    if(!el) return;
+    // highlight pilihan
+    document.querySelectorAll('.shape').forEach(s=> s.style.outline='none');
+    el.style.outline='3px solid #ffd54f';
+    lastSelectedShapeId = el.id;
+    document.getElementById('gameMessage').textContent = 'Bentuk dipilih: ' + labelOf(el.getAttribute('data-shape')) + '. Ketuk kotak tujuan.';
+    document.getElementById('gameMessage').style.color = '#333';
+  }
+
+  // drop (desktop)
+  function drop(ev) {
+    ev.preventDefault();
+    const zone = ev.target.closest('.dropzone');
+    if(!zone) return;
+
+    // try dataTransfer first, else fallback to lastSelectedShapeId
+    let draggedId = '';
+    try { draggedId = ev.dataTransfer.getData('text/plain') || lastSelectedShapeId; } catch(e) { draggedId = lastSelectedShapeId; }
+
+    handlePlacement(zone, draggedId);
+  }
+
+  // when user taps a dropzone (mobile fallback)
+  function dropByClick(ev){
+    ev.preventDefault();
+    const zone = ev.target.closest('.dropzone');
+    if(!zone) return;
+    if(!lastSelectedShapeId){
+      document.getElementById('gameMessage').textContent = 'Pilih dulu bentuknya (ketuk salah satu bentuk).';
+      document.getElementById('gameMessage').style.color = 'orange';
+      return;
+    }
+    handlePlacement(zone, lastSelectedShapeId);
+  }
+
+  // core placement logic (shared)
+  function handlePlacement(zone, draggedId){
+    if(!draggedId) return;
+    const draggedEl = document.getElementById(draggedId);
+    // jika id tidak ditemukan, coba cari elemen yang punya data-shape cocok dengan draggedId
+    let draggedShapeName = draggedEl ? draggedEl.getAttribute('data-shape') : draggedId;
+
+    const targetShape = zone.getAttribute('data-shape');
+
+    if(!draggedShapeName || !targetShape){
+      return;
+    }
+
+    // bandingkan after normalizing
+    if(draggedShapeName.trim().toLowerCase() === targetShape.trim().toLowerCase()){
+      // sukses: 'tempelkan' clone ke dalam zone
+      zone.innerHTML = ''; // kosongkan teks (mis. "Lingkaran")
+      const clone = (draggedEl ? draggedEl.cloneNode(true) : document.createElement('div'));
+      // bersihkan clone agar tidak draggable lagi
+      clone.style.cursor = 'default';
+      clone.setAttribute('draggable','false');
+      clone.style.outline='none';
+      // jika clone adalah wrapper .shape, ambil hanya tampilan (untuk rapi)
+      if(clone.classList && clone.classList.contains('shape')){
+        // buat tampilan kecil (sederhana) dari child bentuk (ambil child pertama)
+        const visual = clone.querySelector('div');
+        const label = document.createElement('div');
+        label.textContent = labelOf(targetShape);
+        label.style.marginTop='6px';
+        label.style.fontSize='14px';
+        // bungkus visual agar center
+        const wrapper = document.createElement('div');
+        wrapper.style.display='flex';
+        wrapper.style.flexDirection='column';
+        wrapper.style.alignItems='center';
+        if(visual) wrapper.appendChild(visual.cloneNode(true));
+        wrapper.appendChild(label);
+        zone.appendChild(wrapper);
+      } else {
+        zone.appendChild(clone);
+      }
+
+      document.getElementById('gameMessage').textContent = '✅ Benar! ' + labelOf(targetShape) + ' cocok.';
+      document.getElementById('gameMessage').style.color = 'green';
+
+      // clear selection
+      lastSelectedShapeId = null;
+      document.querySelectorAll('.shape').forEach(s=> s.style.outline='none');
+    } else {
+      document.getElementById('gameMessage').textContent = '❌ Coba lagi, itu bukan ' + labelOf(targetShape) + '.';
+      document.getElementById('gameMessage').style.color = 'red';
+    }
+  }
+
+  // helper: ubah kode shape ke label Bahasa Indonesia
+  function labelOf(shapeKey){
+    const map = { circle:'Lingkaran', square:'Persegi', triangle:'Segitiga' };
+    return (map[shapeKey] || shapeKey);
+  }
+
+  // reset game
+  function resetGame(){
+    // kembalikan teks default di setiap dropzone dan hapus isi
+    document.querySelectorAll('.dropzone').forEach(z=>{
+      z.innerHTML = labelOf(z.getAttribute('data-shape'));
+    });
+    // kembalikan outline dan state
+    document.querySelectorAll('.shape').forEach(s=> s.style.outline='none');
+    lastSelectedShapeId = null;
+    document.getElementById('gameMessage').textContent = '';
+  }
+</script>
+
+<!-- Visual Schedule -->
+<div class="card">
+  <h2>Rutin Harian (Visual schedule)</h2>
+  <input id="scheduleInput" placeholder="Contoh: Sikat gigi">
+  <button onclick="addSchedule()">Tambah</button>
+  <div id="scheduleList"></div>
+</div>
+
+<!-- Aksesibilitas -->
+<div class="card">
+  <h2>Pengaturan Akses</h2>
+  <button onclick="document.body.style.fontSize='larger'">Perbesar Teks</button>
+  <button onclick="document.body.style.backgroundColor='black';document.body.style.color='white'">Mode Kontras Tinggi</button>
+</div>
+
+<p><i>Tips: Gunakan suara nyata (rekam) bila memungkinkan untuk kenyamanan. Tambahkan gambar nyata, audio berkualitas, dan dukungan caregiver.</i></p>
+
+  </div>  <script>
+    function speakText(){
+      const text=document.getElementById('ttsInput').value;
+      speak(text);
+    }
+    function speak(msg){
+      const utter=new SpeechSynthesisUtterance(msg);
+      utter.rate=parseFloat(document.getElementById('rate').value);
+      speechSynthesis.speak(utter);
+    }
+    // Schedule
+    function addSchedule(){
+      const input=document.getElementById('scheduleInput');
+      const text=input.value.trim();
+      if(text){
+        let item=document.createElement('div');
+        item.className='schedule-item';
+        item.textContent=text;
+        document.getElementById('scheduleList').appendChild(item);
+        let arr=JSON.parse(localStorage.getItem('schedule')||'[]');
+        arr.push(text);
+        localStorage.setItem('schedule',JSON.stringify(arr));
+        input.value='';
+      }
+    }
+    window.onload=function(){
+      let arr=JSON.parse(localStorage.getItem('schedule')||'[]');
+      arr.forEach(t=>{
+        let item=document.createElement('div');
+        item.className='schedule-item';
+        item.textContent=t;
+        document.getElementById('scheduleList').appendChild(item);
+      });
+    }
+  </script></body>
+</html>
