@@ -127,7 +127,7 @@
   <div id="scheduleList"></div>
 </div>
 
-<!-- Game sederhana -->
+ <!-- Game sederhana (Drag & Drop Bentuk) -->
 <div class="card">
   <h2>Game Edukasi</h2>
   <p>Seret bentuk ke kotak yang sesuai.</p>
@@ -156,16 +156,16 @@
 
   <h3 style="text-align:center;">Kotak Tujuan</h3>
   <div style="display:flex; gap:20px; flex-wrap:wrap; justify-content:center;">
-    <div ondrop="drop(event)" ondragover="allowDrop(event)" data-shape="circle"
-         style="width:80px;height:80px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;">
+    <div class="dropzone" ondrop="drop(event)" ondragover="allowDrop(event)" data-shape="circle"
+         style="width:100px;height:100px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;flex-direction:column;">
       Lingkaran
     </div>
-    <div ondrop="drop(event)" ondragover="allowDrop(event)" data-shape="square"
-         style="width:80px;height:80px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;">
+    <div class="dropzone" ondrop="drop(event)" ondragover="allowDrop(event)" data-shape="square"
+         style="width:100px;height:100px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;flex-direction:column;">
       Persegi
     </div>
-    <div ondrop="drop(event)" ondragover="allowDrop(event)" data-shape="triangle"
-         style="width:80px;height:80px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;">
+    <div class="dropzone" ondrop="drop(event)" ondragover="allowDrop(event)" data-shape="triangle"
+         style="width:100px;height:100px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;flex-direction:column;">
       Segitiga
     </div>
   </div>
@@ -181,8 +181,12 @@
   }
   function drop(ev) {
     ev.preventDefault();
+    // pastikan target adalah dropzone, bukan teks di dalamnya
+    let targetZone = ev.target.closest(".dropzone");
+    if (!targetZone) return;
+
     let draggedShape = ev.dataTransfer.getData("shape");
-    let targetShape = ev.target.getAttribute("data-shape");
+    let targetShape = targetZone.getAttribute("data-shape");
 
     if(draggedShape === targetShape){
       document.getElementById("gameMessage").textContent = "✅ Benar! " + targetShape + " cocok.";
@@ -192,8 +196,8 @@
       document.getElementById("gameMessage").style.color = "red";
     }
   }
-                            </script>
-
+</script>   
+    
 <!-- Aksesibilitas -->
 <div class="card">
   <h2>Pengaturan Akses</h2>
