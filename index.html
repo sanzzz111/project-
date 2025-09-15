@@ -1,73 +1,81 @@
-<!DOCTYPE html><html lang="id">
+<!DOCTYPE html>
+<html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Teknologi untuk Down Syndrome</title>
   <style>
-    body{
-      margin:0;
-      font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
       background: url("https://files.catbox.moe/tonq7z.jpeg") no-repeat center center fixed;
       background-size: cover;
-      color:#123;
-      padding:18px;
-      display:flex;
-      align-items:flex-start;
-      justify-content:center;
+      color: #123;
+      padding: 18px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      min-height: 100vh; /* supaya tinggi penuh layar */
+      box-sizing: border-box;
     }
-    .container{
-      max-width:800px;
-      background:#ffffffcc;
-      border-radius:12px;
-      padding:20px;
-      box-shadow:0 4px 12px rgba(0,0,0,.2);
+    .container {
+      max-width: 800px;
+      background: #ffffffcc;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.2);
+
+      /* tambahan biar tidak mepet */
+      margin: 20px;
     }
-    h1{
-      text-align:center;
-      color:#1a3;
+    h1 {
+      text-align: center;
+      color: #1a3;
     }
-    .card{
-      background:#f0f8ff;
-      border-radius:10px;
-      padding:15px;
-      margin:10px 0;
-      box-shadow:0 2px 6px rgba(0,0,0,.15);
+    .card {
+      background: #f0f8ff;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 10px 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,.15);
     }
-    button{
-      background:#3498db;
-      color:white;
-      border:none;
-      padding:10px 15px;
-      border-radius:8px;
-      cursor:pointer;
-      font-size:16px;
+    button {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
     }
-    button:hover{
-      background:#217dbb;
+    button:hover {
+      background: #217dbb;
     }
-    .picture-board{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:10px;
-      text-align:center;
+    .picture-board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      text-align: center;
     }
-    .picture-board img{
-      width:50px;
-      height:50px;
-      display:block;
-      margin:0 auto 5px;
+    .picture-board img {
+      width: 50px;
+      height: 50px;
+      display: block;
+      margin: 0 auto 5px;
     }
-    .schedule-item{
-      background:#e8f5e9;
-      padding:8px;
-      margin:5px 0;
-      border-radius:6px;
+    .schedule-item {
+      background: #e8f5e9;
+      padding: 8px;
+      margin: 5px 0;
+      border-radius: 6px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Aplikasi Bantu Down Syndrome</h1><!-- Text-to-Speech -->
+    <h1>Aplikasi Bantu Down Syndrome</h1>
+    
+><!-- Text-to-Speech -->
 <div class="card">
   <h2>Text to Speech</h2>
   <textarea id="ttsInput" rows="3" style="width:100%" placeholder="Tulis teks di sini..."></textarea><br><br>
