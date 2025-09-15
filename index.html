@@ -127,76 +127,195 @@
   <div id="scheduleList"></div>
 </div>
 
- <!-- Game sederhana (Drag & Drop Bentuk) -->
-<div class="card">
+    <!-- Game Edukasi (perbaikan: desktop drag&drop + mobile tap-to-place) -->
+<div class="card" id="game-edu">
   <h2>Game Edukasi</h2>
-  <p>Seret bentuk ke kotak yang sesuai.</p>
-  <div style="display:flex; gap:20px; flex-wrap:wrap; justify-content:center;">
+  <p>Seret bentuk ke kotak yang sesuai — atau ketuk bentuk lalu ketuk kotak (mode mobile).</p>
 
-    <!-- Bentuk -->
-    <div>
-      <div draggable="true" ondragstart="drag(event)" id="circle" 
-           style="width:60px;height:60px;border-radius:50%;background:red;margin:10px auto;cursor:grab;"></div>
-      <p style="text-align:center;">Lingkaran</p>
+  <div style="display:flex; gap:40px; justify-content:center; align-items:center; margin:20px 0;">
+    <!-- bentuk: beri class "shape" & atribut data-shape -->
+    <div id="circle" class="shape" data-shape="circle" draggable="true"
+         ondragstart="drag(event)" onmousedown="dragStart(event)" ontouchstart="touchStart(event)"
+         style="text-align:center; cursor:grab;">
+      <div style="width:60px;height:60px;border-radius:50%;background:red;margin:0 auto 6px;"></div>
+      <div>Lingkaran</div>
     </div>
-    <div>
-      <div draggable="true" ondragstart="drag(event)" id="square" 
-           style="width:60px;height:60px;background:blue;margin:10px auto;cursor:grab;"></div>
-      <p style="text-align:center;">Persegi</p>
+
+    <div id="square" class="shape" data-shape="square" draggable="true"
+         ondragstart="drag(event)" onmousedown="dragStart(event)" ontouchstart="touchStart(event)"
+         style="text-align:center; cursor:grab;">
+      <div style="width:60px;height:60px;background:blue;margin:0 auto 6px;"></div>
+      <div>Persegi</div>
     </div>
-    <div>
-      <div draggable="true" ondragstart="drag(event)" id="triangle" 
-           style="width:0;height:0;border-left:30px solid transparent;
-                  border-right:30px solid transparent;
-                  border-bottom:60px solid green;
-                  margin:10px auto;cursor:grab;"></div>
-      <p style="text-align:center;">Segitiga</p>
+
+    <div id="triangle" class="shape" data-shape="triangle" draggable="true"
+         ondragstart="drag(event)" onmousedown="dragStart(event)" ontouchstart="touchStart(event)"
+         style="text-align:center; cursor:grab;">
+      <div style="width:0;height:0;border-left:30px solid transparent;border-right:30px solid transparent;border-bottom:60px solid green;margin:0 auto 6px;"></div>
+      <div>Segitiga</div>
     </div>
   </div>
 
   <h3 style="text-align:center;">Kotak Tujuan</h3>
-  <div style="display:flex; gap:20px; flex-wrap:wrap; justify-content:center;">
-    <div class="dropzone" ondrop="drop(event)" ondragover="allowDrop(event)" data-shape="circle"
-         style="width:100px;height:100px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+  <div style="display:flex; gap:20px; justify-content:center; margin-top:8px;">
+    <div class="dropzone" data-shape="circle" ondragover="allowDrop(event)" ondrop="drop(event)"
+         onclick="dropByClick(event)" ontouchend="dropByClick(event)"
+         style="width:110px;height:110px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;flex-direction:column;">
       Lingkaran
     </div>
-    <div class="dropzone" ondrop="drop(event)" ondragover="allowDrop(event)" data-shape="square"
-         style="width:100px;height:100px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+    <div class="dropzone" data-shape="square" ondragover="allowDrop(event)" ondrop="drop(event)"
+         onclick="dropByClick(event)" ontouchend="dropByClick(event)"
+         style="width:110px;height:110px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;flex-direction:column;">
       Persegi
     </div>
-    <div class="dropzone" ondrop="drop(event)" ondragover="allowDrop(event)" data-shape="triangle"
-         style="width:100px;height:100px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+    <div class="dropzone" data-shape="triangle" ondragover="allowDrop(event)" ondrop="drop(event)"
+         onclick="dropByClick(event)" ontouchend="dropByClick(event)"
+         style="width:110px;height:110px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;flex-direction:column;">
       Segitiga
     </div>
   </div>
-  <p id="gameMessage" style="text-align:center;font-weight:bold;color:#1a3;margin-top:10px;"></p>
+
+  <p id="gameMessage" style="text-align:center;font-weight:bold;color:#1a3;margin-top:12px;"></p>
+  <div style="text-align:center;margin-top:8px;">
+    <button onclick="resetGame()">Reset Game</button>
+  </div>
 </div>
 
 <script>
+  // fallback & state
+  let lastSelectedShapeId = null; // dipakai untuk mobile / klik-taruh
+
   function allowDrop(ev) {
     ev.preventDefault();
   }
+
+  // dragstart untuk desktop
   function drag(ev) {
-    ev.dataTransfer.setData("shape", ev.target.id);
+    try {
+      ev.dataTransfer.setData("text/plain", ev.target.id);
+    } catch(e){}
+    // simpan juga ke fallback
+    const el = ev.target.closest('.shape');
+    if(el) lastSelectedShapeId = el.id;
   }
+
+  // beberapa browser memberi target berbeda saat mulai drag; normalisasi
+  function dragStart(ev){
+    const el = ev.target.closest('.shape');
+    if(el) lastSelectedShapeId = el.id;
+  }
+
+  // touchstart / klik bentuk: pilih bentuk untuk mobile
+  function touchStart(ev){
+    ev.preventDefault(); // mencegah gesture default di mobile
+    const el = ev.target.closest('.shape');
+    if(!el) return;
+    // highlight pilihan
+    document.querySelectorAll('.shape').forEach(s=> s.style.outline='none');
+    el.style.outline='3px solid #ffd54f';
+    lastSelectedShapeId = el.id;
+    document.getElementById('gameMessage').textContent = 'Bentuk dipilih: ' + labelOf(el.getAttribute('data-shape')) + '. Ketuk kotak tujuan.';
+    document.getElementById('gameMessage').style.color = '#333';
+  }
+
+  // drop (desktop)
   function drop(ev) {
     ev.preventDefault();
-    // pastikan target adalah dropzone, bukan teks di dalamnya
-    let targetZone = ev.target.closest(".dropzone");
-    if (!targetZone) return;
+    const zone = ev.target.closest('.dropzone');
+    if(!zone) return;
 
-    let draggedShape = ev.dataTransfer.getData("shape");
-    let targetShape = targetZone.getAttribute("data-shape");
+    // try dataTransfer first, else fallback to lastSelectedShapeId
+    let draggedId = '';
+    try { draggedId = ev.dataTransfer.getData('text/plain') || lastSelectedShapeId; } catch(e) { draggedId = lastSelectedShapeId; }
 
-    if(draggedShape === targetShape){
-      document.getElementById("gameMessage").textContent = "✅ Benar! " + targetShape + " cocok.";
-      document.getElementById("gameMessage").style.color = "green";
-    }else{
-      document.getElementById("gameMessage").textContent = "❌ Coba lagi, itu bukan " + targetShape + ".";
-      document.getElementById("gameMessage").style.color = "red";
+    handlePlacement(zone, draggedId);
+  }
+
+  // when user taps a dropzone (mobile fallback)
+  function dropByClick(ev){
+    ev.preventDefault();
+    const zone = ev.target.closest('.dropzone');
+    if(!zone) return;
+    if(!lastSelectedShapeId){
+      document.getElementById('gameMessage').textContent = 'Pilih dulu bentuknya (ketuk salah satu bentuk).';
+      document.getElementById('gameMessage').style.color = 'orange';
+      return;
+    }
+    handlePlacement(zone, lastSelectedShapeId);
+  }
+
+  // core placement logic (shared)
+  function handlePlacement(zone, draggedId){
+    if(!draggedId) return;
+    const draggedEl = document.getElementById(draggedId);
+    // jika id tidak ditemukan, coba cari elemen yang punya data-shape cocok dengan draggedId
+    let draggedShapeName = draggedEl ? draggedEl.getAttribute('data-shape') : draggedId;
+
+    const targetShape = zone.getAttribute('data-shape');
+
+    if(!draggedShapeName || !targetShape){
+      return;
+    }
+
+    // bandingkan after normalizing
+    if(draggedShapeName.trim().toLowerCase() === targetShape.trim().toLowerCase()){
+      // sukses: 'tempelkan' clone ke dalam zone
+      zone.innerHTML = ''; // kosongkan teks (mis. "Lingkaran")
+      const clone = (draggedEl ? draggedEl.cloneNode(true) : document.createElement('div'));
+      // bersihkan clone agar tidak draggable lagi
+      clone.style.cursor = 'default';
+      clone.setAttribute('draggable','false');
+      clone.style.outline='none';
+      // jika clone adalah wrapper .shape, ambil hanya tampilan (untuk rapi)
+      if(clone.classList && clone.classList.contains('shape')){
+        // buat tampilan kecil (sederhana) dari child bentuk (ambil child pertama)
+        const visual = clone.querySelector('div');
+        const label = document.createElement('div');
+        label.textContent = labelOf(targetShape);
+        label.style.marginTop='6px';
+        label.style.fontSize='14px';
+        // bungkus visual agar center
+        const wrapper = document.createElement('div');
+        wrapper.style.display='flex';
+        wrapper.style.flexDirection='column';
+        wrapper.style.alignItems='center';
+        if(visual) wrapper.appendChild(visual.cloneNode(true));
+        wrapper.appendChild(label);
+        zone.appendChild(wrapper);
+      } else {
+        zone.appendChild(clone);
+      }
+
+      document.getElementById('gameMessage').textContent = '✅ Benar! ' + labelOf(targetShape) + ' cocok.';
+      document.getElementById('gameMessage').style.color = 'green';
+
+      // clear selection
+      lastSelectedShapeId = null;
+      document.querySelectorAll('.shape').forEach(s=> s.style.outline='none');
+    } else {
+      document.getElementById('gameMessage').textContent = '❌ Coba lagi, itu bukan ' + labelOf(targetShape) + '.';
+      document.getElementById('gameMessage').style.color = 'red';
     }
   }
-</script>   
+
+  // helper: ubah kode shape ke label Bahasa Indonesia
+  function labelOf(shapeKey){
+    const map = { circle:'Lingkaran', square:'Persegi', triangle:'Segitiga' };
+    return (map[shapeKey] || shapeKey);
+  }
+
+  // reset game
+  function resetGame(){
+    // kembalikan teks default di setiap dropzone dan hapus isi
+    document.querySelectorAll('.dropzone').forEach(z=>{
+      z.innerHTML = labelOf(z.getAttribute('data-shape'));
+    });
+    // kembalikan outline dan state
+    document.querySelectorAll('.shape').forEach(s=> s.style.outline='none');
+    lastSelectedShapeId = null;
+    document.getElementById('gameMessage').textContent = '';
+  }
+    </script>
     
 <!-- Aksesibilitas -->
 <div class="card">
