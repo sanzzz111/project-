@@ -361,6 +361,42 @@
   }
 </script>
 
+    <div class="game">
+  <h2>Game Tebak Warna</h2>
+  <p id="instruksi"></p>
+  <div style="display:flex; gap:20px; margin:20px;">
+    <div class="kotak-warna" style="width:80px; height:80px; background:red;" onclick="cekWarna('merah')"></div>
+    <div class="kotak-warna" style="width:80px; height:80px; background:blue;" onclick="cekWarna('biru')"></div>
+    <div class="kotak-warna" style="width:80px; height:80px; background:green;" onclick="cekWarna('hijau')"></div>
+    <div class="kotak-warna" style="width:80px; height:80px; background:yellow;" onclick="cekWarna('kuning')"></div>
+  </div>
+  <p id="hasil-warna"></p>
+</div>
+
+<script>
+  const warnaList = ["merah", "biru", "hijau", "kuning"];
+  let warnaBenar = "";
+
+  function tampilkanInstruksi() {
+    const random = Math.floor(Math.random() * warnaList.length);
+    warnaBenar = warnaList[random];
+    document.getElementById("instruksi").innerText = "Klik warna: " + warnaBenar.toUpperCase();
+    document.getElementById("hasil-warna").innerText = "";
+  }
+
+  function cekWarna(pilihan) {
+    if (pilihan === warnaBenar) {
+      document.getElementById("hasil-warna").innerText = "✅ Benar!";
+      setTimeout(tampilkanInstruksi, 1000);
+    } else {
+      document.getElementById("hasil-warna").innerText = "❌ Salah, coba lagi!";
+    }
+  }
+
+  // tampilkan pertama kali
+  tampilkanInstruksi();
+</script>
+
 <!-- Visual Schedule -->
 <div class="card">
   <h2>Rutin Harian (Visual schedule)</h2>
