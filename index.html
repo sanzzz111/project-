@@ -397,6 +397,259 @@
   tampilkanInstruksi();
 </script>
 
+    <!doctype html>
+
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Game Angka Edukasi — Untuk Anak Down Syndrome</title>
+  <style>
+    :root{
+      --bg:#f6fbff; --card:#fff; --accent:#4fbeff; --success:#4caf50; --muted:#6b7280;
+      --radius:14px; --pad:16px;
+    }
+    *{box-sizing:border-box}
+    body{font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial; margin:0; background:linear-gradient(180deg,var(--bg),#e9f6ff); color:#073642}
+    .container{max-width:980px;margin:20px auto;padding:18px}
+    header{display:flex;gap:12px;align-items:center}
+    h1{font-size:1.6rem;margin:0}
+    p.lead{margin:4px 0 0;color:var(--muted)}.card{background:var(--card);border-radius:var(--radius);padding:var(--pad);box-shadow:0 6px 18px rgba(7,54,66,0.06)}
+
+.controls{display:flex;gap:10px;align-items:center;margin-top:12px}
+.btn{background:var(--accent);color:#fff;padding:10px 14px;border-radius:12px;border:0;font-weight:600;cursor:pointer}
+.btn.secondary{background:#eef6fb;color:#073642}
+
+.game-area{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+@media (max-width:720px){.game-area{grid-template-columns:1fr}}
+
+.objects-area{min-height:220px;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;padding:12px;justify-content:center}
+.object{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;background:linear-gradient(180deg,#fff,#f3fbff);box-shadow:0 4px 8px rgba(15,76,106,0.06);user-select:none}
+
+.panel{padding:12px}
+.number-choices{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.choice{min-width:64px;padding:10px 12px;border-radius:12px;text-align:center;font-size:1.2rem;border:2px dashed transparent;cursor:pointer}
+.choice:hover{transform:translateY(-3px)}
+.choice.correct{border-color:var(--success);background:linear-gradient(180deg,#e9fff0,#f5fffb)}
+.choice.wrong{border-color:#ff6b6b;background:linear-gradient(180deg,#fff0f0,#fff6f6)}
+
+.status{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-top:10px}
+.big{font-size:2rem;font-weight:700}
+footer{margin-top:18px;text-align:center;color:var(--muted);font-size:.9rem}
+
+/* focus, accessibility */
+.choice:focus{outline:3px solid rgba(79,190,255,0.3)}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="card" style="padding:12px 16px;display:flex;align-items:center;gap:12px">
+        <div style="font-size:1.6rem">🔢</div>
+        <div>
+          <h1>Game Angka — Belajar Menghitung</h1>
+          <p class="lead">Dirancang simpel, penuh dorongan positif, ukuran besar dan suara untuk membantu anak Down Syndrome.</p>
+        </div>
+      </div>
+    </header><section class="card" style="margin-top:14px">
+  <div class="controls">
+    <button id="startBtn" class="btn">Mulai Permainan</button>
+    <button id="speakBtn" class="btn secondary">Ulangi Suara</button>
+    <label style="margin-left:auto;display:flex;gap:8px;align-items:center">
+      <span>Kesulitan:</span>
+      <select id="difficulty" style="padding:8px;border-radius:8px;border:1px solid #dbeafe">
+        <option value="1">Mudah (1–5)</option>
+        <option value="2">Sedang (1–10)</option>
+        <option value="3">Sulit (1–20)</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="game-area">
+    <div class="panel card">
+      <div style="text-align:center">
+        <div style="font-size:1.1rem;margin-bottom:8px">Benda — Hitung dan pilih angka</div>
+        <div id="objects" class="objects-area" aria-live="polite" aria-label="Area benda untuk dihitung">
+          <!-- objek tampil di sini -->
+        </div>
+      </div>
+
+      <div class="status">
+        <div>Skor: <span id="score">0</span></div>
+        <div>Kesempatan: <span id="lives">3</span></div>
+        <div id="message" style="color:var(--muted)"></div>
+      </div>
+    </div>
+
+    <div class="panel card">
+      <div style="text-align:center;margin-bottom:8px">Pilih Angka yang Benar</div>
+      <div id="choices" class="number-choices" role="list">
+        <!-- pilihan angka -->
+      </div>
+
+      <div style="text-align:center;margin-top:12px">
+        <button id="nextBtn" class="btn secondary">Lewati</button>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<footer>
+  Tips: Klik "Mulai Permainan" lalu tekan tombol "Ulangi Suara" jika ingin mendengar instruksi lagi. Cocok dipakai bersama pengawas/terapis.
+</footer>
+
+  </div><script>
+// Simple, accessible game logic
+const startBtn = document.getElementById('startBtn');
+const speakBtn = document.getElementById('speakBtn');
+const objectsEl = document.getElementById('objects');
+const choicesEl = document.getElementById('choices');
+const scoreEl = document.getElementById('score');
+const livesEl = document.getElementById('lives');
+const messageEl = document.getElementById('message');
+const difficultyEl = document.getElementById('difficulty');
+const nextBtn = document.getElementById('nextBtn');
+
+let score = 0; let lives = 3; let currentAnswer = null;
+
+function speak(text){
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'id-ID';
+  u.rate = 0.9; // sedikit lebih lambat untuk jelas
+  window.speechSynthesis.speak(u);
+}
+
+function randInt(min,max){return Math.floor(Math.random()*(max-min+1))+min}
+
+function renderObjects(count){
+  objectsEl.innerHTML = '';
+  for(let i=0;i<count;i++){
+    const d = document.createElement('div');
+    d.className='object';
+    // use simple shape + number for clarity
+    d.innerHTML = '🍎';
+    objectsEl.appendChild(d);
+  }
+}
+
+function buildChoices(correct, difficulty){
+  choicesEl.innerHTML='';
+  const variants = new Set();
+  variants.add(correct);
+  while(variants.size<4){
+    let add = correct + randInt(-3,3);
+    if (difficulty===2) add = randInt(1,10);
+    if (difficulty===3) add = randInt(1,20);
+    if (add<0) add = Math.abs(add)+1;
+    variants.add(add);
+  }
+  const arr = Array.from(variants).sort((a,b)=>a-b);
+  arr.forEach(n=>{
+    const btn = document.createElement('button');
+    btn.className = 'choice';
+    btn.setAttribute('role','listitem');
+    btn.setAttribute('aria-label','Pilihan angka '+n);
+    btn.tabIndex = 0;
+    btn.innerText = n;
+    btn.addEventListener('click',()=>onChoice(n,btn));
+    btn.addEventListener('keydown',(e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); onChoice(n,btn); } });
+    choicesEl.appendChild(btn);
+  });
+}
+
+function onChoice(n,btn){
+  if (currentAnswer===null) return; // game not started
+  if (n === currentAnswer){
+    btn.classList.add('correct');
+    score += 1;
+    messageEl.textContent = 'Bagus! Jawaban benar.';
+    speak('Bagus! Jawaban benar.');
+  } else {
+    btn.classList.add('wrong');
+    lives -= 1;
+    messageEl.textContent = 'Coba lagi ya.';
+    speak('Coba lagi.');
+  }
+  updateHUD();
+  // lock choices
+  Array.from(choicesEl.children).forEach(c=>c.disabled=true);
+}
+
+function updateHUD(){
+  scoreEl.textContent = score;
+  livesEl.textContent = lives;
+}
+
+function nextRound(){
+  if (lives <= 0){
+    speak('Permainan selesai. Skor akhir '+score+' poin.');
+    messageEl.textContent = 'Permainan selesai — tekan Mulai untuk coba lagi.';
+    return;
+  }
+  const diff = parseInt(difficultyEl.value);
+  let max = diff===1?5: diff===2?10:20;
+  const count = randInt(1, Math.min(max,8));
+  currentAnswer = count;
+  renderObjects(count);
+  buildChoices(currentAnswer,diff);
+  messageEl.textContent = 'Hitung benda lalu pilih angka yang sesuai.';
+  speak('Berapa jumlahnya? Hitung lalu pilih angka yang benar.');
+}
+
+startBtn.addEventListener('click', ()=>{
+  // reset
+  score = 0; lives = 3; currentAnswer = null; updateHUD();
+  messageEl.textContent = 'Siap...';
+  nextRound();
+});
+
+speakBtn.addEventListener('click', ()=>{
+  if (currentAnswer===null){ speak('Tekan Mulai Permainan untuk mulai.'); }
+  else { speak('Hitung benda lalu pilih angka yang benar.'); }
+});
+
+nextBtn.addEventListener('click', ()=>{
+  // allow skip but penalize slightly
+  if (currentAnswer===null) return;
+  lives -= 1;
+  messageEl.textContent = 'Dilewati, coba soal berikutnya.';
+  speak('Soal dilewati. Kita lanjut ke soal berikutnya.');
+  updateHUD();
+  setTimeout(()=>{ nextRound(); }, 700);
+});
+
+// when a choice is correct, automatically proceed after a short delay
+const observer = new MutationObserver(()=>{
+  // check if any choice has correct class
+  const correct = choicesEl.querySelector('.choice.correct');
+  const wrongs = choicesEl.querySelectorAll('.choice.wrong');
+  if (correct){
+    setTimeout(()=>{ nextRound(); }, 900);
+  } else if (wrongs.length>0){
+    // if wrong and lives >0, allow try again (do nothing); if no lives, end
+    if (lives<=0){
+      messageEl.textContent = 'Habis kesempatan. Permainan selesai.';
+      speak('Habis kesempatan. Permainan selesai. Skor akhir '+score+' poin.');
+    }
+  }
+});
+observer.observe(choicesEl,{childList:true,attributes:true,subtree:true});
+
+// Accessibility: keyboard shortcut s = start, r = repeat
+window.addEventListener('keydown',(e)=>{
+  if (e.key.toLowerCase()==='s') startBtn.click();
+  if (e.key.toLowerCase()==='r') speakBtn.click();
+});
+
+// initial
+updateHUD();
+</script></body>
+</html>
+
 <!-- Visual Schedule -->
 <div class="card">
   <h2>Rutin Harian (Visual schedule)</h2>
