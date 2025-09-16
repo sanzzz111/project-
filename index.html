@@ -397,153 +397,80 @@
   tampilkanInstruksi();
 </script>
 
-    <!doctype html>
+      <!doctype html>
 
 <html lang="id">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Pengenalan Angka 1–9 — Game Edukasi</title>
+  <title>Game Pengenalan Angka — Untuk Anak Down Syndrome</title>
   <style>
-    :root{--bg:#fffaf0;--card:#fff;--accent:#ff9f43;--ok:#34c759;--muted:#6b7280}
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Arial, Helvetica, sans-serif;background:linear-gradient(180deg,var(--bg),#fff3e6);color:#062126}
-    .wrap{max-width:760px;margin:28px auto;padding:18px}
-    .card{background:var(--card);padding:18px;border-radius:14px;box-shadow:0 8px 30px rgba(6,33,38,0.06)}
-    header{display:flex;gap:12px;align-items:center}
-    h1{margin:0;font-size:1.3rem}
-    p.lead{margin:0;color:var(--muted)}.center{display:flex;flex-direction:column;align-items:center;gap:14px;padding:18px}
-.big-number{font-size:6.5rem;font-weight:800;line-height:1;width:220px;height:220px;border-radius:20px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#fff,#fff6ea);box-shadow:0 8px 20px rgba(0,0,0,0.04)}
-.choices{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
-.choice{min-width:88px;padding:14px;border-radius:12px;border:2px solid transparent;background:#fff;font-size:1.6rem;cursor:pointer}
-.choice.correct{border-color:var(--ok);background:linear-gradient(180deg,#e9fff2,#f6fff9)}
-.choice.wrong{border-color:#ff6b6b;background:linear-gradient(180deg,#fff0f0,#fff6f6)}
-
-.controls{display:flex;gap:8px;align-items:center;margin-top:12px}
-.btn{background:var(--accent);color:#fff;padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:700}
-.btn.secondary{background:#fff;border:1px solid #ffd9a8;color:#062126}
-
-.status{display:flex;gap:12px;justify-content:space-between;align-items:center;margin-top:12px}
-footer{margin-top:12px;color:var(--muted);text-align:center}
-
-@media (max-width:520px){ .big-number{font-size:4.5rem;width:160px;height:160px} .choice{min-width:68px;font-size:1.2rem} }
-
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:url("https://files.catbox.moe/tonq7z.jpeg") no-repeat center/cover;
+      color:#05202b;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      height:100vh
+    }
+    .card{background:#fff;padding:20px;border-radius:16px;box-shadow:0 6px 18px rgba(0,0,0,0.08);max-width:480px;width:100%;text-align:center}
+    h1{margin:0 0 12px;font-size:1.5rem;color:#03506f}
+    .big-number{font-size:5rem;font-weight:bold;margin:20px 0;color:#0077cc}
+    .choices{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:16px}
+    .choice{flex:1 1 30%;min-width:80px;padding:18px;font-size:2rem;border-radius:12px;border:2px solid #cce7ff;background:#f8fbff;cursor:pointer}
+    .choice.correct{background:#e0ffe9;border-color:#34c759}
+    .choice.wrong{background:#ffeaea;border-color:#ff6b6b}
+    .status{margin-top:14px;font-weight:600;color:#444}
+    .btn{margin-top:14px;background:#3aa0ff;color:#fff;border:0;padding:10px 16px;border-radius:10px;cursor:pointer;font-weight:700}
   </style>
 </head>
 <body>
-  <div class="wrap card">
-    <header>
-      <div style="font-size:1.6rem">🔢</div>
-      <div>
-        <h1>Pengenalan Angka 1–9</h1>
-        <p class="lead">Tampilkan angka besar, dengarkan sebutan, lalu pilih angka yang sama. Sederhana dan fokus.</p>
-      </div>
-    </header><main class="center">
-  <div id="big" class="big-number" aria-live="polite">—</div>
-
-  <div id="choices" class="choices" role="list" aria-label="Pilihan angka"></div>
-
-  <div class="controls">
+  <div class="card">
+    <h1>Pengenalan Angka</h1>
+    <div id="number" class="big-number">?</div>
+    <div id="choices" class="choices"></div>
+    <div class="status">Skor: <span id="score">0</span></div>
     <button id="next" class="btn">Soal Berikutnya</button>
-    <button id="repeat" class="btn secondary">Ulangi Suara</button>
-    <label style="margin-left:auto;display:flex;align-items:center;gap:8px"><span>Bahasa:</span>
-      <select id="lang">
-        <option value="id">Indonesia</option>
-        <option value="en">English</option>
-      </select>
-    </label>
-  </div>
-
-  <div class="status" style="width:100%">
-    <div>Skor: <strong id="score">0</strong></div>
-    <div id="feedback" style="color:var(--muted)"></div>
-  </div>
-</main>
-
-<footer>Tips: Tekan <kbd>S</kbd> untuk mulai/soal baru, <kbd>R</kbd> untuk ulangi suara.</footer>
-
   </div><script>
-const bigEl = document.getElementById('big');
+const numberEl = document.getElementById('number');
 const choicesEl = document.getElementById('choices');
-const nextBtn = document.getElementById('next');
-const repeatBtn = document.getElementById('repeat');
-const langEl = document.getElementById('lang');
 const scoreEl = document.getElementById('score');
-const feedbackEl = document.getElementById('feedback');
+const nextBtn = document.getElementById('next');
+let current = null; let score=0;
 
-let current = null; let score = 0;
-
-function speak(text){
-  if(!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = langEl.value==='id' ? 'id-ID' : 'en-US';
-  u.rate = 0.85;
-  window.speechSynthesis.speak(u);
-}
-
+function speak(text){ if(!window.speechSynthesis) return; window.speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.lang='id-ID'; u.rate=0.85; window.speechSynthesis.speak(u);} 
 function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a}
 
-function showNumber(n){
-  current = n;
-  bigEl.textContent = n;
-  bigEl.setAttribute('aria-label', (langEl.value==='id'? 'Angka ':'Number ')+n);
-  // speak with short phrase
-  const phrase = langEl.value==='id' ? `Ini angka ${n}` : `This is number ${n}`;
-  // speak twice lightly spaced to help recognition
-  speak(phrase);
-}
-
-function makeChoices(correct){
+function newRound(){
   choicesEl.innerHTML='';
-  const opts = new Set();
-  opts.add(correct);
-  while(opts.size<3){ opts.add(randInt(1,9)); }
-  const arr = Array.from(opts).sort(()=>Math.random()-0.5);
-  arr.forEach(x=>{
-    const b = document.createElement('button');
-    b.className = 'choice'; b.textContent = x; b.setAttribute('aria-label','Pilihan angka '+x);
-    b.addEventListener('click', ()=> onPick(x,b));
+  current = randInt(1,9);
+  numberEl.textContent=current;
+  // bacakan angka
+  speak(`Ini angka ${current}`);
+  // buat 3 pilihan
+  const set = new Set([current]);
+  while(set.size<3){ set.add(randInt(1,9)); }
+  const arr = Array.from(set).sort(()=>Math.random()-0.5);
+  arr.forEach(n=>{
+    const b=document.createElement('button');
+    b.className='choice'; b.textContent=n;
+    b.addEventListener('click',()=>onClick(n,b));
     choicesEl.appendChild(b);
   });
 }
 
-function onPick(picked, btn){
-  // disable choices briefly
+function onClick(n,btn){
   Array.from(choicesEl.children).forEach(c=>c.disabled=true);
-  if(picked === current){
-    btn.classList.add('correct');
-    score += 1; scoreEl.textContent = score;
-    const msg = langEl.value==='id' ? 'Bagus! Itu benar.' : 'Great! That is correct.';
-    feedbackEl.textContent = msg; speak(msg);
-    // small celebration: enlarge number briefly
-    bigEl.animate([{transform:'scale(1)'},{transform:'scale(1.15)'},{transform:'scale(1)'}],{duration:600});
-    setTimeout(()=> nextQuestion(),800);
-  } else {
-    btn.classList.add('wrong');
-    const msg = langEl.value==='id' ? 'Coba lagi, lihat angka.' : 'Try again, look at the number.';
-    feedbackEl.textContent = msg; speak(msg);
-    // allow another attempt: re-enable except the wrong button
-    setTimeout(()=>{ Array.from(choicesEl.children).forEach(c=>{ if(!c.classList.contains('wrong')) c.disabled=false; }); },700);
-  }
+  if(n===current){ btn.classList.add('correct'); score++; scoreEl.textContent=score; speak('Bagus sekali!'); }
+  else { btn.classList.add('wrong'); speak('Coba lagi'); }
 }
 
-function nextQuestion(){
-  feedbackEl.textContent = '';
-  Array.from(choicesEl.children).forEach(c=>c.className='choice');
-  const n = randInt(1,9);
-  showNumber(n);
-  makeChoices(n);
-}
+nextBtn.addEventListener('click',()=>{ newRound(); });
 
-nextBtn.addEventListener('click', nextQuestion);
-repeatBtn.addEventListener('click', ()=>{ if(current===null) { speak(langEl.value==='id'? 'Tekan soal berikutnya untuk mulai' : 'Press next to start'); } else { const phrase = langEl.value==='id'? `Ini angka ${current}` : `This is number ${current}`; speak(phrase); } });
-
-// keyboard
-window.addEventListener('keydown', (e)=>{ if(e.key.toLowerCase()==='s') nextQuestion(); if(e.key.toLowerCase()==='r') repeatBtn.click(); });
-
-// auto start first question for convenience
-setTimeout(nextQuestion, 400);
+// mulai pertama
+newRound();
 </script></body>
 </html>
 
