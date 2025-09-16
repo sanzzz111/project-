@@ -500,8 +500,117 @@ footer{margin-top:18px;text-align:center;color:var(--muted);font-size:.9rem}
   Tips: Klik "Mulai Permainan" lalu tekan tombol "Ulangi Suara" jika ingin mendengar instruksi lagi. Cocok dipakai bersama pengawas/terapis.
 </footer>
 
-  </div><script>
-// Simple, accessible game logic
+ <!doctype html>
+
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Game Angka Edukasi — Untuk Anak Down Syndrome</title>
+  <style>
+    :root{
+      --bg:#f6fbff; --card:#fff; --accent:#4fbeff; --success:#4caf50; --muted:#6b7280;
+      --radius:14px; --pad:16px;
+    }
+    *{box-sizing:border-box}
+    body{font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial; margin:0; background:linear-gradient(180deg,var(--bg),#e9f6ff); color:#073642}
+    .container{max-width:980px;margin:20px auto;padding:18px}
+    header{display:flex;gap:12px;align-items:center}
+    h1{font-size:1.6rem;margin:0}
+    p.lead{margin:4px 0 0;color:var(--muted)}.card{background:var(--card);border-radius:var(--radius);padding:var(--pad);box-shadow:0 6px 18px rgba(7,54,66,0.06)}
+
+.controls{display:flex;gap:10px;align-items:center;margin-top:12px}
+.btn{background:var(--accent);color:#fff;padding:10px 14px;border-radius:12px;border:0;font-weight:600;cursor:pointer}
+.btn.secondary{background:#eef6fb;color:#073642}
+
+.game-area{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+@media (max-width:720px){.game-area{grid-template-columns:1fr}}
+
+.objects-area{min-height:220px;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;padding:12px;justify-content:center}
+.object{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;background:linear-gradient(180deg,#fff,#f3fbff);box-shadow:0 4px 8px rgba(15,76,106,0.06);user-select:none}
+
+.panel{padding:12px}
+.number-choices{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.choice{min-width:64px;padding:10px 12px;border-radius:12px;text-align:center;font-size:1.2rem;border:2px dashed transparent;cursor:pointer}
+.choice:hover{transform:translateY(-3px)}
+.choice.correct{border-color:var(--success);background:linear-gradient(180deg,#e9fff0,#f5fffb)}
+.choice.wrong{border-color:#ff6b6b;background:linear-gradient(180deg,#fff0f0,#fff6f6)}
+
+.status{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-top:10px}
+.big{font-size:2rem;font-weight:700}
+footer{margin-top:18px;text-align:center;color:var(--muted);font-size:.9rem}
+
+.choice:focus{outline:3px solid rgba(79,190,255,0.3)}
+
+.confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;background:transparent !important;}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="card" style="padding:12px 16px;display:flex;align-items:center;gap:12px">
+        <div style="font-size:1.6rem">🔢</div>
+        <div>
+          <h1>Game Angka — Belajar Menghitung</h1>
+          <p class="lead">Game edukasi dengan suara, pilihan gambar, level, skor tersimpan, dan hadiah confetti. Dirancang untuk anak Down Syndrome.</p>
+        </div>
+      </div>
+    </header><section class="card" style="margin-top:14px">
+  <div class="controls">
+    <button id="startBtn" class="btn">Mulai Permainan</button>
+    <button id="speakBtn" class="btn secondary">Ulangi Suara</button>
+    <label style="margin-left:auto;display:flex;gap:8px;align-items:center">
+      <span>Kesulitan:</span>
+      <select id="difficulty" style="padding:8px;border-radius:8px;border:1px solid #dbeafe">
+        <option value="1">Mudah (1–5)</option>
+        <option value="2">Sedang (1–10)</option>
+        <option value="3">Sulit (1–20)</option>
+      </select>
+    </label>
+    <label style="margin-left:12px;display:flex;gap:8px;align-items:center">
+      <span>Bahasa:</span>
+      <select id="language" style="padding:8px;border-radius:8px;border:1px solid #dbeafe">
+        <option value="id">Indonesia</option>
+        <option value="en">English</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="game-area">
+    <div class="panel card">
+      <div style="text-align:center">
+        <div style="font-size:1.1rem;margin-bottom:8px">Benda — Hitung dan pilih angka</div>
+        <div id="objects" class="objects-area" aria-live="polite" aria-label="Area benda untuk dihitung">
+        </div>
+      </div>
+
+      <div class="status">
+        <div>Skor: <span id="score">0</span></div>
+        <div>Rekor: <span id="highscore">0</span></div>
+        <div>Kesempatan: <span id="lives">3</span></div>
+        <div id="message" style="color:var(--muted)"></div>
+      </div>
+    </div>
+
+    <div class="panel card">
+      <div style="text-align:center;margin-bottom:8px">Pilih Angka yang Benar</div>
+      <div id="choices" class="number-choices" role="list"></div>
+      <div style="text-align:center;margin-top:12px">
+        <button id="nextBtn" class="btn secondary">Lewati</button>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<footer>
+  Tips: Klik "Mulai Permainan" lalu tekan tombol "Ulangi Suara" jika ingin mendengar instruksi lagi. Skor terbaik akan tersimpan otomatis.
+</footer>
+
+  </div><canvas id="confetti" class="confetti"></canvas>
+
+<script>
 const startBtn = document.getElementById('startBtn');
 const speakBtn = document.getElementById('speakBtn');
 const objectsEl = document.getElementById('objects');
@@ -511,15 +620,21 @@ const livesEl = document.getElementById('lives');
 const messageEl = document.getElementById('message');
 const difficultyEl = document.getElementById('difficulty');
 const nextBtn = document.getElementById('nextBtn');
+const highscoreEl = document.getElementById('highscore');
+const languageEl = document.getElementById('language');
 
 let score = 0; let lives = 3; let currentAnswer = null;
+let highscore = parseInt(localStorage.getItem('highscore')||'0');
+highscoreEl.textContent = highscore;
+
+const images = ['🍎','🚗','⚽','🐶','🎈','🌟'];
 
 function speak(text){
   if (!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'id-ID';
-  u.rate = 0.9; // sedikit lebih lambat untuk jelas
+  u.lang = languageEl.value==='id' ? 'id-ID' : 'en-US';
+  u.rate = 0.9;
   window.speechSynthesis.speak(u);
 }
 
@@ -527,11 +642,11 @@ function randInt(min,max){return Math.floor(Math.random()*(max-min+1))+min}
 
 function renderObjects(count){
   objectsEl.innerHTML = '';
+  const icon = images[randInt(0,images.length-1)];
   for(let i=0;i<count;i++){
     const d = document.createElement('div');
     d.className='object';
-    // use simple shape + number for clarity
-    d.innerHTML = '🍎';
+    d.innerHTML = icon;
     objectsEl.appendChild(d);
   }
 }
@@ -541,10 +656,7 @@ function buildChoices(correct, difficulty){
   const variants = new Set();
   variants.add(correct);
   while(variants.size<4){
-    let add = correct + randInt(-3,3);
-    if (difficulty===2) add = randInt(1,10);
-    if (difficulty===3) add = randInt(1,20);
-    if (add<0) add = Math.abs(add)+1;
+    let add = randInt(1, difficulty===1?5: difficulty===2?10:20);
     variants.add(add);
   }
   const arr = Array.from(variants).sort((a,b)=>a-b);
@@ -552,30 +664,28 @@ function buildChoices(correct, difficulty){
     const btn = document.createElement('button');
     btn.className = 'choice';
     btn.setAttribute('role','listitem');
-    btn.setAttribute('aria-label','Pilihan angka '+n);
-    btn.tabIndex = 0;
     btn.innerText = n;
     btn.addEventListener('click',()=>onChoice(n,btn));
-    btn.addEventListener('keydown',(e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); onChoice(n,btn); } });
     choicesEl.appendChild(btn);
   });
 }
 
 function onChoice(n,btn){
-  if (currentAnswer===null) return; // game not started
+  if (currentAnswer===null) return;
   if (n === currentAnswer){
     btn.classList.add('correct');
     score += 1;
-    messageEl.textContent = 'Bagus! Jawaban benar.';
-    speak('Bagus! Jawaban benar.');
+    messageEl.textContent = languageEl.value==='id' ? 'Bagus! Jawaban benar.' : 'Great! Correct answer.';
+    speak(messageEl.textContent);
+    if(score>highscore){ highscore=score; localStorage.setItem('highscore',highscore); highscoreEl.textContent=highscore; }
+    launchConfetti();
   } else {
     btn.classList.add('wrong');
     lives -= 1;
-    messageEl.textContent = 'Coba lagi ya.';
-    speak('Coba lagi.');
+    messageEl.textContent = languageEl.value==='id' ? 'Coba lagi ya.' : 'Try again.';
+    speak(messageEl.textContent);
   }
   updateHUD();
-  // lock choices
   Array.from(choicesEl.children).forEach(c=>c.disabled=true);
 }
 
@@ -586,8 +696,9 @@ function updateHUD(){
 
 function nextRound(){
   if (lives <= 0){
-    speak('Permainan selesai. Skor akhir '+score+' poin.');
-    messageEl.textContent = 'Permainan selesai — tekan Mulai untuk coba lagi.';
+    const msg = languageEl.value==='id' ? `Permainan selesai. Skor akhir ${score} poin.` : `Game over. Final score ${score} points.`;
+    speak(msg);
+    messageEl.textContent = msg;
     return;
   }
   const diff = parseInt(difficultyEl.value);
@@ -596,56 +707,68 @@ function nextRound(){
   currentAnswer = count;
   renderObjects(count);
   buildChoices(currentAnswer,diff);
-  messageEl.textContent = 'Hitung benda lalu pilih angka yang sesuai.';
-  speak('Berapa jumlahnya? Hitung lalu pilih angka yang benar.');
+  messageEl.textContent = languageEl.value==='id' ? 'Hitung benda lalu pilih angka yang sesuai.' : 'Count the objects and choose the correct number.';
+  speak(messageEl.textContent);
 }
 
 startBtn.addEventListener('click', ()=>{
-  // reset
   score = 0; lives = 3; currentAnswer = null; updateHUD();
-  messageEl.textContent = 'Siap...';
+  messageEl.textContent = '...';
   nextRound();
 });
 
 speakBtn.addEventListener('click', ()=>{
-  if (currentAnswer===null){ speak('Tekan Mulai Permainan untuk mulai.'); }
-  else { speak('Hitung benda lalu pilih angka yang benar.'); }
+  if (currentAnswer===null){
+    speak(languageEl.value==='id'? 'Tekan Mulai Permainan untuk mulai.' : 'Press Start Game to begin.');
+  } else {
+    speak(languageEl.value==='id'? 'Hitung benda lalu pilih angka yang benar.' : 'Count the objects and pick the right number.');
+  }
 });
 
 nextBtn.addEventListener('click', ()=>{
-  // allow skip but penalize slightly
   if (currentAnswer===null) return;
   lives -= 1;
-  messageEl.textContent = 'Dilewati, coba soal berikutnya.';
-  speak('Soal dilewati. Kita lanjut ke soal berikutnya.');
+  messageEl.textContent = languageEl.value==='id'? 'Dilewati, coba soal berikutnya.' : 'Skipped, next question.';
+  speak(messageEl.textContent);
   updateHUD();
   setTimeout(()=>{ nextRound(); }, 700);
 });
 
-// when a choice is correct, automatically proceed after a short delay
 const observer = new MutationObserver(()=>{
-  // check if any choice has correct class
   const correct = choicesEl.querySelector('.choice.correct');
-  const wrongs = choicesEl.querySelectorAll('.choice.wrong');
-  if (correct){
-    setTimeout(()=>{ nextRound(); }, 900);
-  } else if (wrongs.length>0){
-    // if wrong and lives >0, allow try again (do nothing); if no lives, end
-    if (lives<=0){
-      messageEl.textContent = 'Habis kesempatan. Permainan selesai.';
-      speak('Habis kesempatan. Permainan selesai. Skor akhir '+score+' poin.');
-    }
-  }
+  if (correct){ setTimeout(()=>{ nextRound(); }, 1000); }
 });
 observer.observe(choicesEl,{childList:true,attributes:true,subtree:true});
 
-// Accessibility: keyboard shortcut s = start, r = repeat
+// confetti effect
+const confettiCanvas = document.getElementById('confetti');
+const ctx = confettiCanvas.getContext('2d');
+let confettiPieces = [];
+function resize(){ confettiCanvas.width=window.innerWidth; confettiCanvas.height=window.innerHeight; }
+window.addEventListener('resize',resize); resize();
+function launchConfetti(){
+  confettiPieces=[];
+  for(let i=0;i<100;i++){
+    confettiPieces.push({x:Math.random()*confettiCanvas.width,y:Math.random()*confettiCanvas.height/2,dx:Math.random()*4-2,dy:Math.random()*3+2,color:`hsl(${Math.random()*360},100%,50%)`,size:Math.random()*6+4});
+  }
+  requestAnimationFrame(updateConfetti);
+}
+function updateConfetti(){
+  ctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+  confettiPieces.forEach(p=>{
+    ctx.fillStyle=p.color;
+    ctx.fillRect(p.x,p.y,p.size,p.size);
+    p.x+=p.dx; p.y+=p.dy;
+    if(p.y>confettiCanvas.height) p.y=0;
+  });
+  if(confettiPieces.length>0){ requestAnimationFrame(updateConfetti); }
+}
+
 window.addEventListener('keydown',(e)=>{
   if (e.key.toLowerCase()==='s') startBtn.click();
   if (e.key.toLowerCase()==='r') speakBtn.click();
 });
 
-// initial
 updateHUD();
 </script></body>
 </html>
