@@ -170,98 +170,6 @@
   tampilkanGambar();
 </script>
 
-<!-- Game Edukasi (perbaikan: desktop drag&drop + mobile tap-to-place) -->
-<div class="card" id="game-edu">
-  <h2>Game Edukasi</h2>
-  <p>Seret bentuk ke kotak yang sesuai — atau ketuk bentuk lalu ketuk kotak (mode mobile).</p>
-
-  <div style="display:flex; gap:40px; justify-content:center; align-items:center; margin:20px 0;">
-    <!-- bentuk: beri class "shape" & atribut data-shape -->
-    <div id="circle" class="shape" data-shape="circle" draggable="true"
-         ondragstart="drag(event)" onmousedown="dragStart(event)" ontouchstart="touchStart(event)"
-         style="text-align:center; cursor:grab;">
-      <div style="width:60px;height:60px;border-radius:50%;background:red;margin:0 auto 6px;"></div>
-      <div>Lingkaran</div>
-    </div>
-
-    <div id="square" class="shape" data-shape="square" draggable="true"
-         ondragstart="drag(event)" onmousedown="dragStart(event)" ontouchstart="touchStart(event)"
-         style="text-align:center; cursor:grab;">
-      <div style="width:60px;height:60px;background:blue;margin:0 auto 6px;"></div>
-      <div>Persegi</div>
-    </div>
-
-    <div id="triangle" class="shape" data-shape="triangle" draggable="true"
-         ondragstart="drag(event)" onmousedown="dragStart(event)" ontouchstart="touchStart(event)"
-         style="text-align:center; cursor:grab;">
-      <div style="width:0;height:0;border-left:30px solid transparent;border-right:30px solid transparent;border-bottom:60px solid green;margin:0 auto 6px;"></div>
-      <div>Segitiga</div>
-    </div>
-  </div>
-
-  <h3 style="text-align:center;">Kotak Tujuan</h3>
-  <div style="display:flex; gap:20px; justify-content:center; margin-top:8px;">
-    <div class="dropzone" data-shape="circle" ondragover="allowDrop(event)" ondrop="drop(event)"
-         onclick="dropByClick(event)" ontouchend="dropByClick(event)"
-         style="width:110px;height:110px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;flex-direction:column;">
-      Lingkaran
-    </div>
-    <div class="dropzone" data-shape="square" ondragover="allowDrop(event)" ondrop="drop(event)"
-         onclick="dropByClick(event)" ontouchend="dropByClick(event)"
-         style="width:110px;height:110px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;flex-direction:column;">
-      Persegi
-    </div>
-    <div class="dropzone" data-shape="triangle" ondragover="allowDrop(event)" ondrop="drop(event)"
-         onclick="dropByClick(event)" ontouchend="dropByClick(event)"
-         style="width:110px;height:110px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;flex-direction:column;">
-      Segitiga
-    </div>
-  </div>
-
-  <p id="gameMessage" style="text-align:center;font-weight:bold;color:#1a3;margin-top:12px;"></p>
-  <div style="text-align:center;margin-top:8px;">
-    <button onclick="resetGame()">Reset Game</button>
-  </div>
-</div>
-
-<script>
-  // fallback & state
-  let lastSelectedShapeId = null; // dipakai untuk mobile / klik-taruh
-
-  function allowDrop(ev) {
-    ev.preventDefault();
-  }
-
-  // dragstart untuk desktop
-  function drag(ev) {
-    try {
-      ev.dataTransfer.setData("text/plain", ev.target.id);
-    } catch(e){}
-    // simpan juga ke fallback
-    const el = ev.target.closest('.shape');
-    if(el) lastSelectedShapeId = el.id;
-  }
-
-  // beberapa browser memberi target berbeda saat mulai drag; normalisasi
-  function dragStart(ev){
-    const el = ev.target.closest('.shape');
-    if(el) lastSelectedShapeId = el.id;
-  }
-
-  // touchstart / klik bentuk: pilih bentuk untuk mobile
-  function touchStart(ev){
-    ev.preventDefault(); // mencegah gesture default di mobile
-    const el = ev.target.closest('.shape');
-    if(!el) return;
-    // highlight pilihan
-    document.querySelectorAll('.shape').forEach(s=> s.style.outline='none');
-    el.style.outline='3px solid #ffd54f';
-    lastSelectedShapeId = el.id;
-    document.getElementById('gameMessage').textContent = 'Bentuk dipilih: ' + labelOf(el.getAttribute('data-shape')) + '. Ketuk kotak tujuan.';
-    document.getElementById('gameMessage').style.color = '#333';
-  }
-
-  // drop (desktop)
   function drop(ev) {
     ev.preventDefault();
     const zone = ev.target.closest('.dropzone');
@@ -338,27 +246,63 @@
     } else {
       document.getElementById('gameMessage').textContent = '❌ Coba lagi, itu bukan ' + labelOf(targetShape) + '.';
       document.getElementById('gameMessage').style.color = 'red';
-    }
-  }
+<!-- Game Edukasi (perbaikan: desktop drag&drop + mobile tap-to-place) -->
+<div class="card" id="game-edu">
+  <h2>Game Edukasi</h2>
+  <p>Seret bentuk ke kotak yang sesuai — atau ketuk bentuk lalu ketuk kotak (mode mobile).</p>
 
-  // helper: ubah kode shape ke label Bahasa Indonesia
-  function labelOf(shapeKey){
-    const map = { circle:'Lingkaran', square:'Persegi', triangle:'Segitiga' };
-    return (map[shapeKey] || shapeKey);
-  }
+  <!-- wrapper supaya ukuran lebih kecil -->
+  <div style="max-width:600px; margin:0 auto;">
 
-  // reset game
-  function resetGame(){
-    // kembalikan teks default di setiap dropzone dan hapus isi
-    document.querySelectorAll('.dropzone').forEach(z=>{
-      z.innerHTML = labelOf(z.getAttribute('data-shape'));
-    });
-    // kembalikan outline dan state
-    document.querySelectorAll('.shape').forEach(s=> s.style.outline='none');
-    lastSelectedShapeId = null;
-    document.getElementById('gameMessage').textContent = '';
-  }
-</script>
+    <div style="display:flex; gap:30px; justify-content:center; align-items:center; margin:20px 0; flex-wrap:wrap;">
+      <!-- bentuk: beri class "shape" & atribut data-shape -->
+      <div id="circle" class="shape" data-shape="circle" draggable="true"
+           ondragstart="drag(event)" onmousedown="dragStart(event)" ontouchstart="touchStart(event)"
+           style="text-align:center; cursor:grab; flex:1 1 120px; max-width:120px;">
+        <div style="width:50px;height:50px;border-radius:50%;background:red;margin:0 auto 6px;"></div>
+        <div>Lingkaran</div>
+      </div>
+
+      <div id="square" class="shape" data-shape="square" draggable="true"
+           ondragstart="drag(event)" onmousedown="dragStart(event)" ontouchstart="touchStart(event)"
+           style="text-align:center; cursor:grab; flex:1 1 120px; max-width:120px;">
+        <div style="width:50px;height:50px;background:blue;margin:0 auto 6px;"></div>
+        <div>Persegi</div>
+      </div>
+
+      <div id="triangle" class="shape" data-shape="triangle" draggable="true"
+           ondragstart="drag(event)" onmousedown="dragStart(event)" ontouchstart="touchStart(event)"
+           style="text-align:center; cursor:grab; flex:1 1 120px; max-width:120px;">
+        <div style="width:0;height:0;border-left:25px solid transparent;border-right:25px solid transparent;border-bottom:50px solid green;margin:0 auto 6px;"></div>
+        <div>Segitiga</div>
+      </div>
+    </div>
+
+    <h3 style="text-align:center;">Kotak Tujuan</h3>
+    <div style="display:flex; gap:15px; justify-content:center; margin-top:8px; flex-wrap:wrap;">
+      <div class="dropzone" data-shape="circle" ondragover="allowDrop(event)" ondrop="drop(event)"
+           onclick="dropByClick(event)" ontouchend="dropByClick(event)"
+           style="width:90px;height:90px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+        Lingkaran
+      </div>
+      <div class="dropzone" data-shape="square" ondragover="allowDrop(event)" ondrop="drop(event)"
+           onclick="dropByClick(event)" ontouchend="dropByClick(event)"
+           style="width:90px;height:90px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+        Persegi
+      </div>
+      <div class="dropzone" data-shape="triangle" ondragover="allowDrop(event)" ondrop="drop(event)"
+           onclick="dropByClick(event)" ontouchend="dropByClick(event)"
+           style="width:90px;height:90px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+        Segitiga
+      </div>
+    </div>
+  </div>
+
+  <p id="gameMessage" style="text-align:center;font-weight:bold;color:#1a3;margin-top:12px;"></p>
+  <div style="text-align:center;margin-top:8px;">
+    <button onclick="resetGame()">Reset Game</button>
+  </div>
+</div>
 
 <div class="game">
   <h2>Game Tebak Warna</h2>
